@@ -49,7 +49,6 @@ do_quit() {
   echo -e ""
   sleep 2
   printf %b '\e[0m' '\e[8]' '\e[H\e[J'
-  $SELINUX && setenforce 1
   exit 0
 }
 stty -echoctl
@@ -235,20 +234,6 @@ if [ "$ABILONG" = "x86_64" ]; then
   ARCH32=x86
   IS64BIT=true
 fi
-# Do device detection, then set the API url. The API uses this to serve an appropriate response.
-# Note that modules that modify props can mess with this and cause an inappropriate file to be served.
-A=$(resetprop ro.system.build.version.release | sed 's#\ #%20#g' || resetprop ro.build.version.release | sed 's#\ #%20#g') && D=$(resetprop ro.product.model | sed 's#\ #%20#g' || resetprop ro.product.device | sed 's#\ #%20#g' | sed 's#\ #%20#g' || resetprop ro.product.vendor.device | sed 's#\ #%20#g' | sed 's#\ #%20#g' || resetprop ro.product.system.model | sed 's#\ #%20#g' | sed 's#\ #%20#g' || resetprop ro.product.vendor.model | sed 's#\ #%20#g' | sed 's#\ #%20#g' || resetprop ro.product.name | sed 's#\ #%20#g') && L=$(resetprop persist.sys.locale | sed 's#\ #%20#g' || resetprop ro.product.locale | sed 's#\ #%20#g') && M="fm" && P="m=$M&av=$A&a=$ARCH&d=$D&ss=%20&l=$L" && U="https://api.androidacy.com"
-if ! wget -qc "$U/ping?$P" -O /dev/null -o /dev/null; then
-  echo -e "${R} No internet access, or the API is down! Try again later!${N}"
-  echo -e "${R} The module will exit now, as it needs connectivity with the API to work.${N}"
-  exit 1
-fi
-dl() {
-  if ! wget -qc "${U}/${3}?${P}${1}" -O "$2" -o /dev/null; then
-    echo -e "${R}⚠ Download failed! Bailing out!${N}"
-    it_failed
-  fi
-}
 # Version Number
 VER=$(grep_prop version $MODDIR/module.prop)
 # Version Code

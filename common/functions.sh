@@ -17,9 +17,11 @@ do_banner() {
 	ui_print "*************************************************"
 	ui_print "An Androidacy project - androidacy.com"
 	ui_print "*************************************************"
-	sleep 1
+	sleep 0.5
 }
 do_banner
+. $MODPATH/common/apiClient.sh
+initClient 'fm' '5.0.1-beta2'
 unzip -o "$ZIPFILE" -x 'META-INF/*' 'common/functions.sh' -d $MODPATH >&2
 [ -f "$MODPATH/common/addon.tar.xz" ] && tar -xf $MODPATH/common/addon.tar.xz -C $MODPATH/common 2>/dev/null
 it_failed() {
@@ -36,21 +38,11 @@ it_failed() {
   ui_print " Please fix any issues and retry."
   ui_print " If you feel this is a bug or need assistance, head to our telegram"
   ui_print " All files besides logs are assumed to be corrupt, and have been removed."
-  rm -fr "$EXT_DATA"/apks "$EXT_DATA"/version.txt
+  rm -fr "$EXT_DATA"/fonts "$EXT_DATA"/emojis
   ui_print " "
   ui_print "⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠"
   ui_print " "
-  $INTERNET && curl -s -d "$P&i=2" "$U"/ping >/dev/null
   exit 1
-}
-dl() {
-  if ! wget -qc  "${U}/${3}?${P}${1}" -O "$2"; then
-    ui_print "⚠ Download failed! Bailing out!"
-    it_failed
-  fi
-}
-get_v() {
-  dl "&s=$DIR" '-' version
 }
 abort() {
   ui_print "$1"

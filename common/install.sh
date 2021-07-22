@@ -1,6 +1,5 @@
 # shellcheck shell=ash
-# shellcheck disable=SC2169
-# shellcheck disable=SC2121
+# shellcheck disable=SC2169,SC2121,SC2154
 ui_print "ⓘ Welcome to Font Manager!"
 xml_s() {
 	ui_print "ⓘ Registering our fonts"
@@ -94,17 +93,18 @@ get_lists() {
 		mkdir -p "$EXT_DATA"/lists
 		mkdir -p "$EXT_DATA"/font
 		mkdir -p "$EXT_DATA"/emoji
-		dl "&s=lists&w=&a=fonts-list&ft=txt" "$MODPATH/lists/fonts-list.txt" "download"
-        dl "&s=lists&w=&a=emojis-list&ft=txt" "$MODPATH/lists/emojis-list.txt" "download"
-		sed -i s/[.]zip//gi "$MODPATH"/lists/*
+		getList 'fonts'
+		echo "$response" > "$MODPATH/lists/fonts.list"
+		getList 'emojis'
+        echo "$response" > "$MODPATH/lists/emojis.list"
+		sed -i 's/[.]zip//gi' "$MODPATH"/lists/*
+		sed -i 's/[[:blank:]]+/\n/g' "$MODPATH"/lists/*
+		updateChecker 'lists'
+		echo "$response" > "$MODPATH"/lists/lists.version
 		mkdir -p "$MODPATH"/system/etc
 		mkdir -p "$MODPATH"/system/fonts
 		cp "$MODPATH"/lists/* "$EXT_DATA"/lists
 		xml_s
-}
-copy_lists() {
-	cp -rf "$MODPATH"/lists/fonts-list.txt "$EXT_DATA"/lists/fonts-list.txt
-	cp -rf "$MODPATH"/lists/emojis-list.txt "$EXT_DATA"/lists/emojis-list.txt
 }
 setup_script() {
 	chmod 755 -R "$MODPATH"/system/bin/
@@ -113,15 +113,14 @@ setup_script() {
 extra_cleanup() {
 	mkdir "$MODPATH"/tools/
 	mv "$MODPATH"/common/tools/fontmanager.sh "$MODPATH"/tools/fontmanager
+	mv "$MODPATH"/common/apiClient.sh "$MODPATH"/tools/apiClient
 	mv "$MODPATH"/common/tools/utils.sh "$MODPATH"/tools/utils
 	mv "$MODPATH/common/tools/bash-$ARCH" "$MODPATH/tools/bash"
 	rm -fr "$MODPATH"/common/
 	rm -rf "$MODPATH"/*.md
 	rm -rf "$MODPATH"/LICENSE
-	$INTERNET && wget -q "$U/ping?$P&i=1" >/dev/null
 }
 get_lists
-copy_lists
 setup_script
 extra_cleanup
 {

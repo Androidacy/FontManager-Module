@@ -40,7 +40,9 @@ set -x
 set -o functrace
 shopt -s checkwinsize
 shopt -s expand_aliases
+# Source necessary files
 . /data/adb/modules/fontrevival/tools/utils
+. /data/adb/modules/fontrevival/tools/apiClient
 # shellcheck disable=SC2154
 if test -n "${ANDROID_SOCKET_adbd}"; then
     echo -e "ⓧ Please run this in a terminal emulator on device! ⓧ"
@@ -55,14 +57,6 @@ if ! $NR; then
     it_failed
 fi
 TRY_COUNT=1
-no_i() {
-    do_banner
-    echo -e "${R} No internet access!${N}"
-    echo -e "${R} For now this module requires internet access${N}"
-    echo -e "${R} Exiting${N}"
-    sleep 3
-    it_failed
-}
 font_select() {
     clear
     do_banner
@@ -111,7 +105,7 @@ font_select() {
         font_select
     fi
     do_banner
-    dl "&s=fonts&w=&a=$choice&ft=zip" "$EXT_DATA/font/$choice.zip" "download" && sleep 1 &
+    downloadFile 'fonts' "$choice" 'zip' "$EXT_DATA/font/$choice.zip" && sleep 0.75 &
     e_spinner "${Bl} Downloading $choice font "
     sleep 2
     in_f() {
@@ -124,7 +118,8 @@ font_select() {
             return
         else
             O_S=$(md5sum "$RESULTF" | sed "s/\ \/.*//" | tr -d '[:space:]')
-            T_S=$(dl "${P}&s=fonts&w=&a=$choice&ft=zip" '-' verify | tr -d '[:space:]')
+            getChecksum 'fonts' "$choice" 'zip'
+            T_S=$(echo "$response" | tr -d '[:space:]')
             if [ "$T_S" != "$O_S" ]; then
                 echo -e "${R}Downloaded file corrupt. The font was not installed.${N}"
                 echo -e "${R}Returning to font selection${N}"
@@ -202,7 +197,7 @@ emoji_select() {
         font_select
     fi
     do_banner
-    dl "&s=emojis&w=&a=$choice&ft=zip" "$EXT_DATA/emoji/$choice.zip" "download" && sleep 1 &
+    downloadFile 'emojis' "$choice" 'zip' "$EXT_DATA/emoji/$choice.zip" && sleep 0.75 &
     e_spinner "${Bl} Downloading $choice emoji set "
     sleep 2
     in_e() {
@@ -215,7 +210,8 @@ emoji_select() {
             return
         else
             O_S=$(md5sum "$RESULTE" | sed "s/\ \/.*//" | tr -d '[:space:]')
-            T_S=$(dl "${P}&s=emojis&w=&a=$choice&ft=zip" '-' verify | tr -d '[:space:]')
+            getChecksum 'emojis' "$choice" 'zip'
+            T_S=$(echo "$response" | tr -d '[:space:]')
             if [ "$T_S" != "$O_S" ]; then
                 echo -e "${R} Downloaded file corrupt. The emoji set was not installed.${N}"
                 echo -e "${R} Returning to emoji selection${N}"
@@ -252,24 +248,6 @@ emoji_select() {
     sleep 2
     reboot_fn
 }
-update_lists() {
-    do_banner
-    mkdir -p "$MODDIR"/lists
-    dl_l() {
-        dl "&s=lists&w=&a=fonts-list&ft=txt" "$MODDIR"/lists/fonts-list.txt "download"
-        dl "&s=lists&w=&a=emojis-list&ft=txt" "$MODDIR"/lists/emojis-list.txt "download"
-        sed -i s/[.]zip//gi "$MODDIR"/lists/*
-        cp "$MODDIR"/lists/* "$EXT_DATA"/lists
-        sleep 1.75
-    }
-    dl_l &
-    e_spinner "${Bl} Downloading fresh lists ${N}"
-    echo -e " "
-    echo -e "${Y} Lists updated! Returning to menu${N}"
-    sleep 2
-    clear
-    menu_set
-}
 get_id() {
     sed -n 's/^name=//p' "${1}"
 }
@@ -291,6 +269,7 @@ detect_others() {
 reboot_fn() {
     do_banner
     echo -e "${Bl} Do you want to reboot now?${N}"
+    echo -e "${Bl} Make sure to save your work!${N}"
     echo -en "${Bl} y: yes, n: return to menu: "
     read -r a
     if test "$a" == "y"; then
@@ -318,7 +297,7 @@ rever_st() {
 open_link() {
     do_banner
     echo -e "${Bl} Opening https://www.androidacy.com/$1/...${N}"
-    am start -a android.intent.action.VIEW -d "https://www.androidacy.com/$1/?utm_source=FontManager" &>/dev/null
+    am start -a android.intent.action.VIEW -d "https://www.androidacy.com/$1/?utm_source=FontManager&utm_medium=modules" &>/dev/null
     sleep 2
     echo -e "${Bl} Page should be open. Returning to menu.${N}"
     sleep 2
@@ -338,27 +317,47 @@ menu_set() {
         echo -e "${Bl} Available options:${N}"
         echo -e "${Bl}  1. Change your font${N}"
         echo -e "${Bl}  2. Change your emoji${N}"
-        echo -e "${Bl}  3. Update font and emoji lists${N}"
-        echo -e "${Bl}  4. Revert to stock font and emoji${N}"
-        echo -e "${Bl}  5. Reboot to apply changes${N}"
-        echo -e "${Bl}  6. Open font previews${N}"
-        echo -e "${Bl}  7. Donate to Androidacy${N}"
-        echo -e "${Bl}  8. Quit${N}"
+        echo -e "${Bl}  3. Revert to stock font and emoji${N}"
+        echo -e "${Bl}  4. Reboot to apply changes${N}"
+        echo -e "${Bl}  5. Open font previews${N}"
+        echo -e "${Bl}  6. Donate to Androidacy${N}"
+        echo -e "${Bl}  7. Quit${N}"
         echo -e "$div"
         echo -en "${Bl} Your selection: "
         read -r a
         case $a in
         1*) font_select ;;
         2*) emoji_select ;;
-        3*) update_lists ;;
-        4*) rever_st ;;
-        5*) reboot_fn ;;
-        6*) open_link "font-previewer" ;;
-        7*) open_link "donate" ;;
-        8*) do_quit ;;
+        3*) rever_st ;;
+        4*) reboot_fn ;;
+        5*) open_link "font-previewer" ;;
+        6*) open_link "donate" ;;
+        7*) do_quit ;;
         *) echo -e "${R} Invalid option, please try again${N}" && sleep 2 && menu_set ;;
         esac
     done
 }
+# Checks for lists updates. Maybe in the future for module updates.
+updateCheck() {
+    do_banner
+    echo -e "${Bl} Checking for list updates...${N}"
+    updateChecker 'lists'
+    listtVersion=$response
+    if test "$(cat "$MODDIR"/lists/fonts.list.version)" -ne "$listVersion"; then
+        echo -e "${Bl} Lists update found! Updating to v${listVersion}${N}"
+        getList 'fonts'
+		echo "$response" > "$MODPATH/lists/fonts.list"
+        sed -i 's/[.]zip//gi' "$MODPATH"/lists/fonts.list
+		sed -i 's/[[:blank:]]+/\n/g' "$MODPATH"/lists/fonts.list
+        getList 'emojis'
+		echo "$response" > "$MODPATH/lists/emojis.list"
+        sed -i 's/[.]zip//gi' "$MODPATH"/lists/emojis.list
+		sed -i 's/[[:blank:]]+/\n/g' "$MODPATH"/lists/emojis.list
+        echo -e "${Bl} Lists updated! Proceeding to menu!${N}"
+    else
+        echo -e "${Bl} No lists update found! Proceeding to menu${N}"
+    fi
+}
+updateCheck
 detect_others
 menu_set
