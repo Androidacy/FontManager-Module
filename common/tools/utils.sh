@@ -26,17 +26,15 @@ spacing="${C}$(printf '%*s' $(((COLUMNS - 49) * 50 / 100)) '' | tr " " " ")"
 # Print module banner
 do_banner() {
   printf %b '\e[100m' '\e[8]' '\e[H\e[J'
-  echo -e "${spacing}            _____              _   ${N}"
-  echo -e "${spacing}           |  ___|___   _ __  | |_ ${N}"
-  echo -e "${spacing}           | |_  / _ \ | '_ \ | __|${N}"
-  echo -e "${spacing}           |  _|| (_) || | | || |_ ${N}"
-  echo -e "${spacing}           |_|   \___/ |_| |_| \__|${N}"
-  echo -e "${spacing} __  __                            ${N}"
-  echo -e "${spacing}|  \/  |  __ _  _ __    __ _   __ _   ___  _ __ ${N}"
-  echo -e "${spacing}| |\/| | / _\` || '_ \  / _\` | / _\` | / _ \| '__|${N}"
-  echo -e "${spacing}| |  | || (_| || | | || (_| || (_| ||  __/| |   ${N}"
-  echo -e "${spacing}|_|  |_| \__,_||_| |_| \__,_| \__, | \___||_|   ${N}"
-  echo -e "${spacing}                              |___/             ${N}"
+  echo "${spacing}   ____            __                     ${N}"
+  echo "${spacing}  / __/___   ___  / /_                    ${N}"
+  echo "${spacing} / _/ / _ \ / _ \/ __/                    ${N}"
+  echo "${spacing}/_/   \___//_//_/\__/                     ${N}"
+  echo "${spacing}   __  ___                                ${N}"
+  echo "${spacing}  /  |/  /___ _ ___  ___ _ ___ _ ___  ____${N}"
+  echo "${spacing} / /|_/ // _ \`// _ \/ _ \`// _ \`// -_)/ __/${N}"
+  echo "${spacing}/_/  /_/ \_,_//_//_/\_,_/ \_, / \__//_/   ${N}"
+  echo "${spacing}                         /___/            ${N}"
   echo -e "${spacing}An Androidacy app. Visit us @ androidacy.com${N}"
   echo -e "$div"
 }
@@ -45,7 +43,7 @@ do_quit() {
   clear
   do_banner
   echo -e "${spacing}Thanks for using Font Manager${N}"
-  echo -e "${spacing}          Goodbye${N}"
+  echo -e "${spacing}Goodbye for now!${N}"
   echo -e ""
   sleep 2
   printf %b '\e[0m' '\e[8]' '\e[H\e[J'

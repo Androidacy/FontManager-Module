@@ -87,24 +87,24 @@ xml_s() {
 	fi
 }
 get_lists() {
-		ui_print "ⓘ Excellent, you have internet."
-		ui_print "ⓘ Downloading extra files..."
-		mkdir -p "$MODPATH"/lists
-		mkdir -p "$EXT_DATA"/lists
-		mkdir -p "$EXT_DATA"/font
-		mkdir -p "$EXT_DATA"/emoji
-		getList 'fonts'
-		echo "$response" > "$MODPATH/lists/fonts.list"
-		getList 'emojis'
-        echo "$response" > "$MODPATH/lists/emojis.list"
-		sed -i 's/[.]zip//gi' "$MODPATH"/lists/*
-		sed -i 's/[[:blank:]]+/\n/g' "$MODPATH"/lists/*
-		updateChecker 'lists'
-		echo "$response" > "$MODPATH"/lists/lists.version
-		mkdir -p "$MODPATH"/system/etc
-		mkdir -p "$MODPATH"/system/fonts
-		cp "$MODPATH"/lists/* "$EXT_DATA"/lists
-		xml_s
+	ui_print "ⓘ Excellent, you have internet."
+	ui_print "ⓘ Downloading extra files..."
+	mkdir -p "$MODPATH"/lists
+	mkdir -p "$EXT_DATA"/lists
+	mkdir -p "$EXT_DATA"/font
+	mkdir -p "$EXT_DATA"/emoji
+	getList 'fonts'
+	echo "$response" >"$MODPATH/lists/fonts.list"
+	getList 'emojis'
+	echo "$response" >"$MODPATH/lists/emojis.list"
+	sed -i 's/[.]zip//gi' "$MODPATH"/lists/*
+	sed -i 's/[[:blank:]]+/\n/g' "$MODPATH"/lists/*
+	updateChecker 'lists'
+	echo "$response" >"$MODPATH"/lists/lists.version
+	mkdir -p "$MODPATH"/system/etc
+	mkdir -p "$MODPATH"/system/fonts
+	cp "$MODPATH"/lists/* "$EXT_DATA"/lists
+	xml_s
 }
 setup_script() {
 	chmod 755 -R "$MODPATH"/system/bin/
