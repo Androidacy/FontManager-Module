@@ -97,8 +97,9 @@ get_lists() {
 	echo "$response" >"$MODPATH/lists/fonts.list"
 	getList 'emojis'
 	echo "$response" >"$MODPATH/lists/emojis.list"
-	sed -i 's/[.]zip//gi' "$MODPATH"/lists/*
-	sed -i 's/[[:blank:]]+/\n/g' "$MODPATH"/lists/*
+	sed -i 's/....$//g' "$MODPATH"/lists/*
+	sed -i 's/\ /\n/g' "$MODPATH"/lists/*
+	sed -i '/version/d' "$MODPATH"/lists/*
 	updateChecker 'lists'
 	echo "$response" >"$MODPATH"/lists/lists.version
 	mkdir -p "$MODPATH"/system/etc

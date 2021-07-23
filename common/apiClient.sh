@@ -74,7 +74,7 @@ getList() {
         echo "Illegal number of parameters passed. Expected one, got $#"
         abort
     else
-        if ! __API_INIT_DONE; then
+        if ! $__API_INIT_DONE; then
             echo "Tried to call getList without first initializing the API client!"
             abort
         fi
@@ -100,7 +100,7 @@ downloadFile() {
     if test "$#" -ne 4; then
         echo "Illegal number of parameters passed. Expected four, got $#"
         abort
-        if ! __API_INIT_DONE; then
+        if ! $__API_INIT_DONE; then
             echo "Tried to call downloadFile without first initializing the API client!"
             abort
         fi
@@ -130,7 +130,7 @@ updateChecker() {
     if test "$#" -ne 1; then
         echo "Illegal number of parameters passed. Expected one, got $#"
         abort
-        if ! __API_INIT_DONE; then
+        if ! $__API_INIT_DONE; then
             echo "Tried to call updateChecker without first initializing the API client!"
             abort
         fi
@@ -149,7 +149,7 @@ getChecksum() {
      if test "$#" -ne 3; then
         echo "Illegal number of parameters passed. Expected three, got $#"
         abort
-        if ! __API_INIT_DONE; then
+        if ! $__API_INIT_DONE; then
             echo "Tried to call getChecksum without first initializing the API client!"
             abort
         fi

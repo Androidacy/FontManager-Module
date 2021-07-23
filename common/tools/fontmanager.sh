@@ -346,13 +346,11 @@ updateCheck() {
     if test "$(cat "$MODDIR"/lists/fonts.list.version)" -ne "$listVersion"; then
         echo -e "${Bl} Lists update found! Updating to v${listVersion}${N}"
         getList 'fonts'
-        echo "$response" >"$MODPATH/lists/fonts.list"
-        sed -i 's/[.]zip//gi' "$MODPATH"/lists/fonts.list
-        sed -i 's/[[:blank:]]+/\n/g' "$MODPATH"/lists/fonts.list
+        echo "$response" >"$MODDIR/lists/fonts.list"
         getList 'emojis'
-        echo "$response" >"$MODPATH/lists/emojis.list"
-        sed -i 's/[.]zip//gi' "$MODPATH"/lists/emojis.list
-        sed -i 's/[[:blank:]]+/\n/g' "$MODPATH"/lists/emojis.list
+        echo "$response" >"$MODDIR/lists/emojis.list"
+        sed -i 's/\ /\n/g' "$MODDIR"/lists/*
+	      sed -i '/version/d' "$MODDIR"/lists/*
         echo -e "${Bl} Lists updated! Proceeding to menu!${N}"
     else
         echo -e "${Bl} No lists update found! Proceeding to menu${N}"
