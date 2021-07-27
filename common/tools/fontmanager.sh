@@ -12,7 +12,7 @@ detect_ext_data() {
         export EXT_DATA="/data/media/0/FontManager"
     else
         EXT_DATA='/storage/emulated/0/FontManager'
-        echo -e "⚠ PossiBle internal storage access issues! Please make sure data is mounted and decrypted."
+        echo -e "⚠ Possible internal storage access issues! Please make sure data is mounted and decrypted."
         echo -e "⚠ Trying to proceed anyway "
         sleep 2
     fi
@@ -43,6 +43,7 @@ shopt -s expand_aliases
 # Source necessary files
 . /data/adb/modules/fontrevival/tools/utils
 . /data/adb/modules/fontrevival/tools/apiClient
+initClient 'fm' '5.0.1_beta3'
 # shellcheck disable=SC2154
 if test -n "${ANDROID_SOCKET_adbd}"; then
     echo -e "ⓧ Please run this in a terminal emulator on device! ⓧ"
@@ -68,14 +69,14 @@ font_select() {
     LINESTART=1
     print_list() {
         do_banner
-        TOTALLINES=$(wc -l /sdcard/FontManager/lists/fonts-list.txt | awk '{ print $1 }')
+        TOTALLINES=$(wc -l /sdcard/FontManager/lists/fonts.list | awk '{ print $1 }')
         USABlELINES=$((LINES - 17))
         LINESREAD=$((LINESTART + USABlELINES))
         if test $LINESTART -ge "$TOTALLINES"; then
             LINESTART=1
             LINESREAD=$USABlELINES
         fi
-        awk '{printf "\033[47;100m%d.\t%s\n", NR, $0}' <"$MODDIR"/lists/fonts-list.txt | sed -n ${LINESTART},${LINESREAD}p
+        awk '{printf "\033[47;100m%d.\t%s\n", NR, $0}' <"$MODDIR"/lists/fonts.list | sed -n ${LINESTART},${LINESREAD}p
         echo -e "$div"
         echo -e "${Bl} x: main menu, q: quit, enter: more, <number>: select${N}"
         echo -en "${Bl} Your choice: "
@@ -95,7 +96,7 @@ font_select() {
         sleep 1
         menu_set
     fi
-    choice=$(sed "${a}q;d" "$MODDIR"/lists/fonts-list.txt)
+    choice=$(sed "${a}q;d" "$MODDIR"/lists/fonts.list)
     if [[ -z $choice ]]; then
         do_banner
         echo -e "${R} ERROR: INVALID SELECTION${N}"
@@ -160,14 +161,14 @@ emoji_select() {
     LINESTART=1
     print_list() {
         do_banner
-        TOTALLINES=$(wc -l /sdcard/FontManager/lists/emojis-list.txt | awk '{ print $1 }')
+        TOTALLINES=$(wc -l /sdcard/FontManager/lists/emojis.list | awk '{ print $1 }')
         USABlELINES=$((LINES - 17))
         LINESREAD=$((LINESTART + USABlELINES))
         if test $LINESTART -ge "$TOTALLINES"; then
             LINESTART=1
             LINESREAD=$USABlELINES
         fi
-        awk '{printf "\033[47;100m%d.\t%s\n", NR, $0}' <"$MODDIR"/lists/emojis-list.txt | sed -n ${LINESTART},${LINESREAD}p
+        awk '{printf "\033[47;100m%d.\t%s\n", NR, $0}' <"$MODDIR"/lists/emojis.list | sed -n ${LINESTART},${LINESREAD}p
         echo -e "$div"
         echo -e "${Bl} x: main menu, q: quit, enter: more, <number>: select${N}"
         echo -en "${Bl} Your choice: "
@@ -187,7 +188,7 @@ emoji_select() {
         sleep 1
         menu_set
     fi
-    choice=$(sed "${a}q;d" "$MODDIR"/lists/emojis-list.txt)
+    choice=$(sed "${a}q;d" "$MODDIR"/lists/emojis.list)
     if [[ -z $choice ]]; then
         do_banner
         echo -e "${R} ERROR: INVALID SELECTION${N}"
@@ -234,7 +235,7 @@ emoji_select() {
         if test -d /data/data/com.facebook.orca; then
             if test -d /data/data/com.facebook.orca/app_compactdisk/ras_blobs/latest/sessionless/storage; then
                 cp -f "$MODDIR/system/fonts/NotoColorEmoji.ttf" "/data/data/com.facebook.orca/app_compactdisk/ras_blobs/latest/sessionless/storage/FacebookEmoji.ttf"
-                FBID="$(dumpsys package com.facebook.orca | grep userId=)"
+                FBID="$(dumpsys package com.facebook.orca | grep userId= | sed 's/[^0-9]*//g' )"
                 set_perm 644 "$FBID" "$FBID" 0 "/data/data/com.facebook.orca/app_compactdisk/ras_blobs/latest/sessionless/storage/FacebookEmoji.ttf"
             fi
         fi
@@ -345,12 +346,12 @@ updateCheck() {
     listtVersion=$response
     if test "$(cat "$MODDIR"/lists/fonts.list.version)" -ne "$listVersion"; then
         echo -e "${Bl} Lists update found! Updating to v${listVersion}${N}"
-        getList 'fonts'
-        echo "$response" >"$MODDIR/lists/fonts.list"
-        getList 'emojis'
-        echo "$response" >"$MODDIR/lists/emojis.list"
-        sed -i 's/\ /\n/g' "$MODDIR"/lists/*
-	      sed -i '/version/d' "$MODDIR"/lists/*
+        downloadFile 'lists' 'fonts-list' 'txt' "$MODPATH/lists/fonts.list"
+	    downloadFile 'lists' 'emojis-list' 'txt' "$MODPATH/lists/emojis.list"
+	    sed -i 's/[.]zip$//g' "$MODPATH"/lists/*
+	    cp -f "$MODPATH"/lists/* "$EXT_DATA"/lists
+        updateChecker 'lists'
+	    echo "$response" >"$MODPATH"/lists/lists.version
         echo -e "${Bl} Lists updated! Proceeding to menu!${N}"
     else
         echo -e "${Bl} No lists update found! Proceeding to menu${N}"

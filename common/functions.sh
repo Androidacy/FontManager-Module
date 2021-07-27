@@ -75,7 +75,7 @@ ui_print "ⓘ Logging verbosely to ${EXT_DATA}/logs"
 set -x
 exec 2>"$EXT_DATA"/logs/install.log
 . $MODPATH/common/apiClient.sh
-initClient 'fm' '5.0.1-beta2'
+initClient 'fm' '5.0.1_beta3'
 mount_apex() {
   $BOOTMODE || [ ! -d /system/apex ] && return
   local APEX DEST

@@ -93,18 +93,14 @@ get_lists() {
 	mkdir -p "$EXT_DATA"/lists
 	mkdir -p "$EXT_DATA"/font
 	mkdir -p "$EXT_DATA"/emoji
-	getList 'fonts'
-	echo "$response" >"$MODPATH/lists/fonts.list"
-	getList 'emojis'
-	echo "$response" >"$MODPATH/lists/emojis.list"
-	sed -i 's/....$//g' "$MODPATH"/lists/*
-	sed -i 's/\ /\n/g' "$MODPATH"/lists/*
-	sed -i '/version/d' "$MODPATH"/lists/*
+	downloadFile 'lists' 'fonts-list' 'txt' "$MODPATH/lists/fonts.list"
+	downloadFile 'lists' 'emojis-list' 'txt' "$MODPATH/lists/emojis.list"
+	sed -i 's/[.]zip$//g' "$MODPATH"/lists/*
 	updateChecker 'lists'
 	echo "$response" >"$MODPATH"/lists/lists.version
 	mkdir -p "$MODPATH"/system/etc
 	mkdir -p "$MODPATH"/system/fonts
-	cp "$MODPATH"/lists/* "$EXT_DATA"/lists
+	cp -f "$MODPATH"/lists/* "$EXT_DATA"/lists
 	xml_s
 }
 setup_script() {

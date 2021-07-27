@@ -17,10 +17,10 @@ initClient() {
         elif test "$1" = 'wvm'; then
             export API_FN="WebviewManager"
         fi
+        export API_V=$2
+        export API_APP=$1
         buildClient
         initTokens
-        export API_APP_V=$2
-        export API_APP=$1
         if ! wget -U "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=$app&token=$API_TOKEN" $API_URL/ping; then
           echo "API unreachable! Try again in a few minutes"
           abort
@@ -34,19 +34,20 @@ buildClient() {
     android=$(resetprop ro.system.build.version.release || resetprop ro.build.version.release)
     device=$(resetprop ro.product.model | sed 's#\n#%20#g' || resetprop ro.product.device | sed 's#\n#%20#g' || resetprop ro.product.vendor.device | sed 's#\n#%20#g' || resetprop ro.product.system.model | sed 's#\n#%20#g' || resetprop ro.product.vendor.model | sed 's#\n#%20#g' || resetprop ro.product.name | sed 's#\n#%20#g')
     lang=$(resetprop persist.sys.locale | sed 's#\n#%20#g' || resetprop ro.product.locale | sed 's#\n#%20#g')
-    export API_UA="Mozilla/5.0 (Linux; Android $android; $device) AppleWebKit/537.36 (KHTML, like Gecko) $API_FN/$API_APP_V Mobile Safari/537.36"
+    export API_UA="Mozilla/5.0 (Linux; Android $android; $device) AppleWebKit/537.36 (KHTML, like Gecko) 
+Chrome/68.0.3440.91 Mobile Safari/537.36 [${API_FN}/${API_V}]"
     export API_LANG=$lang
 }
 
 # Tokens init
 initTokens() {
     if test -f /sdcard/.androidacy; then
-        cachedToken=$(cat /sdcard/.androidacy)
+        export API_TOKEN=$(cat /sdcard/.androidacy)
     else
         wget -U "$API_UA" --header="Accept-Language: $API_LANG" --post-data 'app=tokens' "$API_URL/tokens/get" -O /sdcard/.androidacy
-        cachedToken=$(cat /sdcard/.androidacy)
+        export API_TOKEN=$(cat /sdcard/.androidacy)
     fi
-    validateTokens "$cachedToken"
+    validateTokens "$API_TOKEN"
 }
 
 # Check that we have a valid token
@@ -55,7 +56,7 @@ validateTokens() {
         echo "Illegal number of parameters passed. Expected one, got $#"
         abort
     else
-        API_LVL=$(wget -U "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=tokens&token=$1" "$API_URL/tokens/validate" -O -)
+        API_LVL=$(wget -U "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=tokens&token=$API_TOKEN" "$API_URL/tokens/validate" -O -)
         if test $? -ne 0; then
             # Restart process on validation failure
             rm -f '/sdcard/.androidacy'
@@ -63,8 +64,11 @@ validateTokens() {
         else
             # Pass the appropriate API access level back to the caller
             export API_LVL
-            export API_TOKEN=$1
         fi
+    fi
+    if test "$API_LVL" -lt 2; then
+        echo '- Looks like your using a free or guest token'
+        echo '- For info on faster downloads, see https://www.androidacy.com/'
     fi
 }
 
@@ -111,8 +115,6 @@ downloadFile() {
         local location=$4
         local app=$API_APP
         if test "$API_LVL" -lt 2; then
-            echo '- Looks like your using a free or guest token'
-            echo '- For info on faster downloads, see https://www.androidacy.com/'
             local endpoint='downloads/free'
         else
             local endpoint='downloads/paid'

@@ -22,19 +22,19 @@ BLINK='\e[100;30;5m' # Blinking text
 loadBar=' '          # Load UI
 #COLUMNS="$(stty size | cut -d" " -f2)"
 div="${Bl}$(printf '%*s' $COLUMNS '' | tr " " "=")${N}"
-spacing="${C}$(printf '%*s' $(((COLUMNS - 49) * 50 / 100)) '' | tr " " " ")"
+spacing="$(printf '%*s' $(((COLUMNS - 49) * 50 / 100)) '' | tr " " " ")"
 # Print module banner
 do_banner() {
   printf %b '\e[100m' '\e[8]' '\e[H\e[J'
-  echo "${spacing}   ____            __                     ${N}"
-  echo "${spacing}  / __/___   ___  / /_                    ${N}"
-  echo "${spacing} / _/ / _ \ / _ \/ __/                    ${N}"
-  echo "${spacing}/_/   \___//_//_/\__/                     ${N}"
-  echo "${spacing}   __  ___                                ${N}"
-  echo "${spacing}  /  |/  /___ _ ___  ___ _ ___ _ ___  ____${N}"
-  echo "${spacing} / /|_/ // _ \`// _ \/ _ \`// _ \`// -_)/ __/${N}"
-  echo "${spacing}/_/  /_/ \_,_//_//_/\_,_/ \_, / \__//_/   ${N}"
-  echo "${spacing}                         /___/            ${N}"
+  echo "${spacing}   ____            __                     "
+  echo "${spacing}  / __/___   ___  / /_                   "
+  echo "${spacing} / _/ / _ \ / _ \/ __/                    "
+  echo "${spacing}/_/   \___//_//_/\__/                     "
+  echo "${spacing}   __  ___                                "
+  echo "${spacing}  /  |/  /___ _ ___  ___ _ ___ _ ___  ____"
+  echo "${spacing} / /|_/ // _ \`// _ \/ _ \`// _ \`// -_)/ __/"
+  echo "${spacing}/_/  /_/ \_,_//_//_/\_,_/ \_, / \__//_/ "
+  echo "${spacing}                         /___/            "
   echo -e "${spacing}An Androidacy app. Visit us @ androidacy.com${N}"
   echo -e "$div"
 }
