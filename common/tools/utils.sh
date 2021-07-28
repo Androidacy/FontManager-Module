@@ -52,7 +52,6 @@ do_quit() {
 stty -echoctl
 trap do_quit INT
 e_spinner() {
-  set +x
   PID=$!
   h=0
   anim='▰▱▱▱▱▱▱▰▰▱▱▱▱▱▰▰▰▱▱▱▱▰▰▰▰▱▱▱▰▰▰▰▰▱▱▰▰▰▰▰▰▱▰▰▰▰▰▰▰▰▱▱▱▱▱▱'
@@ -66,7 +65,6 @@ e_spinner() {
     sleep 0.08
     printf "\r${@}${spaces}|${anim:$h:22}|"
   done
-  set -x
 }
 it_failed() {
   do_banner
@@ -112,7 +110,6 @@ fi
 # set_busybox <busybox binary>
 # alias busybox applets
 set_busybox() {
-  set +x
   if [ -x "$1" ]; then
     for i in $(${1} --list); do
       if [ "$i" != 'echo' ]; then
@@ -123,16 +120,9 @@ set_busybox() {
     _busybox=true
     _bb=$1
   fi
-  set -x
 }
-_busybox=false
-if [ -x $SYSTEM2/xbin/busybox ]; then
-  _bb=$SYSTEM2/xbin/busybox
-elif [ -x $SYSTEM2/bin/busybox ]; then
-  _bb=$SYSTEM2/bin/busybox
-else
-  _bb=/data/adb/magisk/busybox
-fi
+_busybox=true
+_bb=/data/adb/magisk/busybox
 if ! set_busybox $_bb; then
   it_failed 1
 fi
@@ -143,8 +133,6 @@ if [ "$_bbname" == "" ]; then
   _bbname="${R}BusyBox not found!${N}"
   it_failed
 fi
-
-#=========================== Default Functions and Variables
 
 # Set perm
 set_perm() {
@@ -240,9 +228,6 @@ REL=$(grep_prop versionCode $MODDIR/module.prop)
 AUTHOR=$(grep_prop author $MODDIR/module.prop)
 # Mod Name/Title
 MODTITLE=$(grep_prop name $MODDIR/module.prop)
-
-COLUMNS="$(stty size | cut -d" " -f2)"
-
 # title_div [-c] <title>
 # based on $div with <title>
 title_div() {
@@ -360,3 +345,25 @@ mod_head() {
   echo "$div"
   [ -s $LOG ] && echo "Enter ${W}logs${N} to upload logs" && echo $div
 }
+
+### Logging functions
+
+# Log <level> <message>
+log() {
+  echo "[$1]: $2" >>$LOGFILE
+}
+
+# Initialize logging
+setup_logger() {
+  LOGFILE=$EXT_DATA/logs/script.log
+  export LOGFILE
+  echo "" >$LOGFILE
+  {
+    echo "Module: $MODTITLE $VER"
+    echo "Device: $BRAND $MODEL ($DEVICE)"
+    echo "ROM: $ROM, sdk$API"
+  } >>$LOGFILE
+  set -eo pipefail
+  exec 2>$LOGFILE
+}
+setup_logger

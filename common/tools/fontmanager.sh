@@ -32,11 +32,6 @@ mkdir -p "$EXT_DATA"/lists >/dev/null
 mkdir -p "$EXT_DATA"/font >/dev/null
 mkdir -p "$EXT_DATA"/emoji >/dev/null
 MODDIR="/data/adb/modules/fontrevival"
-exec > >(tee -ia "$EXT_DATA"/logs/script.log)
-exec 2> >(tee -ia "$EXT_DATA"/logs/script.log >&2)
-exec 19>"$EXT_DATA"/logs/script.log
-export BASH_XTRACEFD="19"
-set -x
 set -o functrace
 shopt -s checkwinsize
 shopt -s expand_aliases
@@ -113,9 +108,10 @@ font_select() {
         RESULTF="$EXT_DATA"/font/"$choice".zip
         if [ ! -f "$RESULTF" ]; then
             echo -e "${R} Downloaded file not found. The font was not installed.${N}"
-            echo -e "${R} Returning to font selection${N}"
-            sleep 2
-            font_select
+            echo -e "${R} Returning to main menu in three seconds${N}"
+            pkill -f wget
+            sleep 3
+            menu_set
             return
         else
             O_S=$(md5sum "$RESULTF" | sed "s/\ \/.*//" | tr -d '[:space:]')
@@ -123,9 +119,11 @@ font_select() {
             T_S=$(echo "$response" | tr -d '[:space:]')
             if [ "$T_S" != "$O_S" ]; then
                 echo -e "${R}Downloaded file corrupt. The font was not installed.${N}"
-                echo -e "${R}Returning to font selection${N}"
-                sleep 2
-                font_select
+                echo -e "${R}Returning to main menu in three seconds${N}"
+                pkill -f wget
+                sleep 3
+                menu_set
+                return
             fi
         fi
         unzip -o "$RESULTF" -d "$MODDIR/system/fonts" &>/dev/null
@@ -205,9 +203,10 @@ emoji_select() {
         RESULTE="$EXT_DATA"/emoji/"$choice".zip
         if [ ! -f "$RESULTE" ]; then
             echo -e "${R} Downloaded file not found. The emoji set was not installed.${N}"
-            echo -e "${R} Returning to font selection${N}"
-            sleep 2
-            font_select
+            echo -e "${R} Returning to main menu in three seconds ${N}"
+            pkill -f wget
+            sleep 3
+            menu_set
             return
         else
             O_S=$(md5sum "$RESULTE" | sed "s/\ \/.*//" | tr -d '[:space:]')
@@ -215,9 +214,11 @@ emoji_select() {
             T_S=$(echo "$response" | tr -d '[:space:]')
             if [ "$T_S" != "$O_S" ]; then
                 echo -e "${R} Downloaded file corrupt. The emoji set was not installed.${N}"
-                echo -e "${R} Returning to emoji selection${N}"
-                sleep 2
-                emoji_select
+                echo -e "${R} Returning to main  menu in three seconds ${N}"
+                pkill -f wget
+                sleep 3
+                menu_set
+                return
             fi
         fi
         unzip -o "$RESULTE" -d "$MODDIR/system/fonts" &>/dev/null
@@ -253,7 +254,6 @@ get_id() {
     sed -n 's/^name=//p' "${1}"
 }
 detect_others() {
-    set +x
     for i in /data/adb/modules/*/*; do
         if test "$i" != "*fontrevival" && test ! -f "$i"/disaBle && test -d "$i"/system/fonts; then
             NAME=$(get_id "$i"/module.prop)
@@ -265,7 +265,6 @@ detect_others() {
             it_failed
         fi
     done
-    set -x
 }
 reboot_fn() {
     do_banner

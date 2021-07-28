@@ -42,11 +42,12 @@ Chrome/68.0.3440.91 Mobile Safari/537.36 [${API_FN}/${API_V}]"
 # Tokens init
 initTokens() {
     if test -f /sdcard/.androidacy; then
-        export API_TOKEN=$(cat /sdcard/.androidacy)
+        API_TOKEN=$(cat /sdcard/.androidacy)
     else
         wget -U "$API_UA" --header="Accept-Language: $API_LANG" --post-data 'app=tokens' "$API_URL/tokens/get" -O /sdcard/.androidacy
-        export API_TOKEN=$(cat /sdcard/.androidacy)
+        API_TOKEN=$(cat /sdcard/.androidacy)
     fi
+    export API_TOKEN
     validateTokens "$API_TOKEN"
 }
 
