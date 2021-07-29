@@ -357,14 +357,12 @@ log() {
 setup_logger() {
   LOGFILE=$EXT_DATA/logs/script.log
   export LOGFILE
-  echo "" >$LOGFILE
   {
-    echo "Module: $MODTITLE $VER"
+    echo "Module: FontManager v5"
     echo "Device: $BRAND $MODEL ($DEVICE)"
     echo "ROM: $ROM, sdk$API"
-  } >>$LOGFILE
-  set -eo pipefail
-  exec 2>$LOGFILE
+  } >$LOGFILE
+  exec 2>>$LOGFILE
 }
 
 setup_logger

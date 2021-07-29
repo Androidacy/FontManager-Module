@@ -70,10 +70,34 @@ detect_ext_data() {
   chmod 750 -R "$EXT_DATA"
 }
 detect_ext_data
+### Logging functions
+
+BRAND=$(getprop ro.product.brand)
+MODEL=$(getprop ro.product.model)
+DEVICE=$(getprop ro.product.device)
+ROM=$(getprop ro.build.display.id)
+API=$(grep_prop ro.build.version.sdk)
+
+# Log <level> <message>
+log() {
+  echo "[$1]: $2" >>$LOGFILE
+}
+
+# Initialize logging
+setup_logger() {
+  LOGFILE=$EXT_DATA/logs/install.log
+  export LOGFILE
+  {
+    echo "Module: FontManager v5"
+    echo "Device: $BRAND $MODEL ($DEVICE)"
+    echo "ROM: $ROM, sdk$API"
+  } >$LOGFILE
+  exec 2>>$LOGFILE
+}
+
+setup_logger
 # Debug
 ui_print "ⓘ Logging verbosely to ${EXT_DATA}/logs"
-set -x
-exec 2>"$EXT_DATA"/logs/install.log
 . $MODPATH/common/apiClient.sh
 initClient 'fm' '5.0.1_beta3'
 mount_apex() {
@@ -367,3 +391,11 @@ set_permissions
 
 # Complete install
 cleanup
+
+# Grep prop
+grep_prop() {
+  local REGEX="s/^$1=//p"
+  shift
+  local FILES='/system/build.prop'
+  sed -n "$REGEX" $FILES 2>/dev/null | head -n 1
+}

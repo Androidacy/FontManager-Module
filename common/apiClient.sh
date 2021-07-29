@@ -22,8 +22,7 @@ initClient() {
         export API_APP=$1
         buildClient
         initTokens
-        isOnline=$(wget --server-response -U "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=$app&token=$API_TOKEN" $API_URL/ping|grep -c '200 OK')
-        if test "$isOnline" -ne 1; then
+        if ! wget -qU "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=$app&token=$API_TOKEN" $API_URL/ping; then
             log 'ERROR' "Couldn't contact API. Is it offline or blocked?"
             echo "API unreachable! Try again in a few minutes"
             abort
