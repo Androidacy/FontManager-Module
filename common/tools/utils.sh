@@ -355,7 +355,7 @@ log() {
 
 # Initialize logging
 setup_logger() {
-  LOGFILE=$EXT_DATA/logs/script.log
+  LOGFILE=$EXT_DATA/logs/install.log
   export LOGFILE
   {
     echo "Module: FontManager v5"
