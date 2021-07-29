@@ -7,6 +7,7 @@
 
 # Initiliaze the API
 initClient() {
+    log 'INFO' "Initializing API with paramaters: $1, $2"
     if test "$#" -ne 2; then
         echo "Illegal number of parameters passed. Expected two, got $#"
         abort
@@ -21,9 +22,11 @@ initClient() {
         export API_APP=$1
         buildClient
         initTokens
-        if ! wget -U "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=$app&token=$API_TOKEN" $API_URL/ping; then
-          echo "API unreachable! Try again in a few minutes"
-          abort
+        isOnline=$(wget --server-response -U "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=$app&token=$API_TOKEN" $API_URL/ping|grep -c '200 OK')
+        if test "$isOnline" -ne 1; then
+            log 'ERROR' "Couldn't contact API. Is it offline or blocked?"
+            echo "API unreachable! Try again in a few minutes"
+            abort
         fi
         export __API_INIT_DONE=true
     fi
@@ -31,6 +34,7 @@ initClient() {
 
 # Build client requests
 buildClient() {
+    log 'INFO' "Building client and exporting variables"
     android=$(resetprop ro.system.build.version.release || resetprop ro.build.version.release)
     device=$(resetprop ro.product.model | sed 's#\n#%20#g' || resetprop ro.product.device | sed 's#\n#%20#g' || resetprop ro.product.vendor.device | sed 's#\n#%20#g' || resetprop ro.product.system.model | sed 's#\n#%20#g' || resetprop ro.product.vendor.model | sed 's#\n#%20#g' || resetprop ro.product.name | sed 's#\n#%20#g')
     lang=$(resetprop persist.sys.locale | sed 's#\n#%20#g' || resetprop ro.product.locale | sed 's#\n#%20#g')
@@ -41,24 +45,30 @@ Chrome/68.0.3440.91 Mobile Safari/537.36 [${API_FN}/${API_V}]"
 
 # Tokens init
 initTokens() {
+    log 'INFO' "Starting tokens initialization"
     if test -f /sdcard/.androidacy; then
         API_TOKEN=$(cat /sdcard/.androidacy)
     else
-        wget -U "$API_UA" --header="Accept-Language: $API_LANG" --post-data 'app=tokens' "$API_URL/tokens/get" -O /sdcard/.androidacy
+        log 'WARN' "Couldn't find API credentials. If this is a first run, this warning can be safely ignored."
+        wget -qU "$API_UA" --header="Accept-Language: $API_LANG" --post-data 'app=tokens' "$API_URL/tokens/get" -O /sdcard/.androidacy
         API_TOKEN=$(cat /sdcard/.androidacy)
     fi
+    log 'INFO' "Exporting token"
     export API_TOKEN
     validateTokens "$API_TOKEN"
 }
 
 # Check that we have a valid token
 validateTokens() {
+    log 'INFO' "Starting tokens validation"
     if test "$#" -ne 1; then
+        log 'ERROR' 'Caught error in validateTokens: wrong arguments passed'
         echo "Illegal number of parameters passed. Expected one, got $#"
         abort
     else
-        API_LVL=$(wget -U "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=tokens&token=$API_TOKEN" "$API_URL/tokens/validate" -O -)
+        API_LVL=$(wget -qU "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=tokens&token=$API_TOKEN" "$API_URL/tokens/validate" -O -)
         if test $? -ne 0; then
+            log 'WARN' "Got invalid response when trying to validate token!"
             # Restart process on validation failure
             rm -f '/sdcard/.androidacy'
             initTokens
@@ -75,11 +85,14 @@ validateTokens() {
 
 # Handle and decode file list JSON
 getList() {
+    log 'INFO' "getList called with parameter: $1"
     if test "$#" -ne 1; then
+        log 'ERROR' 'Caught error in getList: wrong arguments passed'
         echo "Illegal number of parameters passed. Expected one, got $#"
         abort
     else
         if ! $__API_INIT_DONE; then
+            log 'ERROR' 'Make sure you initialize the api client via initClient before trying to call API methods'
             echo "Tried to call getList without first initializing the API client!"
             abort
         fi
@@ -89,8 +102,9 @@ getList() {
             echo "Error! Access denied for beta."
             abort
         fi
-        response=$(wget -U "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=$app&category=$cat&token=$API_TOKEN" $API_URL/downloads/list  -O -)
+        response=$(wget -qU "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=$app&category=$cat&token=$API_TOKEN" $API_URL/downloads/list -O -)
         if test $? -ne 0; then
+            log 'ERROR' "Couldn't contact API. Is it offline or blocked?"
             echo "API request failed! Assuming API is down and aborting!"
             abort
         fi
@@ -102,10 +116,13 @@ getList() {
 
 # Handle file downloads
 downloadFile() {
+    log 'INFO' "downloadFile called with parameters: $1 $2 $3 $4"
     if test "$#" -ne 4; then
+        log 'ERROR' 'Caught error in downloadFile: wrong arguments passed'
         echo "Illegal number of parameters passed. Expected four, got $#"
         abort
         if ! $__API_INIT_DONE; then
+            log 'ERROR' 'Make sure you initialize the api client via initClient before trying to call API methods'
             echo "Tried to call downloadFile without first initializing the API client!"
             abort
         fi
@@ -120,8 +137,9 @@ downloadFile() {
         else
             local endpoint='downloads/paid'
         fi
-        wget -U "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=$app&category=$cat&request=$file&format=$format&token=$API_TOKEN" "$API_URL/$endpoint" -O "$location"
+        wget -qU "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=$app&category=$cat&request=$file&format=$format&token=$API_TOKEN" "$API_URL/$endpoint" -O "$location"
         if test $? -ne 0; then
+            log 'ERROR' "Couldn't contact API. Is it offline or blocked?"
             echo "API request failed! Assuming API is down and aborting!"
             abort
         fi
@@ -130,17 +148,20 @@ downloadFile() {
 
 # Handle uptdates checking
 updateChecker() {
+    log 'INFO' "updateChecker called with parameter: $1"
     if test "$#" -ne 1; then
+        log 'ERROR' 'Caught error in updateChecker: wrong arguments passed'
         echo "Illegal number of parameters passed. Expected one, got $#"
         abort
         if ! $__API_INIT_DONE; then
+            log 'ERROR' 'Make sure you initialize the api client via initClient before trying to call API methods'
             echo "Tried to call updateChecker without first initializing the API client!"
             abort
         fi
     else
         local cat=$1
         local app=$API_APP
-        response=$(wget -U "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=$app&category=$cat&token=$API_TOKEN" "$API_URL/downloads/updates"  -O -)
+        response=$(wget -qU "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=$app&category=$cat&token=$API_TOKEN" "$API_URL/downloads/updates" -O -)
         # shellcheck disable=SC2001
         parsedList=$(echo "$response" | sed 's/[^a-zA-Z0-9]/ /g')
         response="$parsedList"
@@ -149,10 +170,13 @@ updateChecker() {
 
 # Handle checksums
 getChecksum() {
-     if test "$#" -ne 3; then
+    log 'INFO' "getChecksum called with parameters: $1 $2 $3"
+    if test "$#" -ne 3; then
+        log 'ERROR' 'Caught error in getChecksum: wrong arguments passed'
         echo "Illegal number of parameters passed. Expected three, got $#"
         abort
         if ! $__API_INIT_DONE; then
+            log 'ERROR' 'Make sure you initialize the api client via initClient before trying to call API methods'
             echo "Tried to call getChecksum without first initializing the API client!"
             abort
         fi
@@ -161,8 +185,9 @@ getChecksum() {
         local file=$2
         local format=$3
         local app=$API_APP
-        response=$(wget -U "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=$app&category=$cat&request=$file&format=$format&token=$API_TOKEN" $API_URL'/checksum/get'  -O -)
+        response=$(wget -qU "$API_UA" --header="Accept-Language: $API_LANG" --post-data "app=$app&category=$cat&request=$file&format=$format&token=$API_TOKEN" $API_URL'/checksum/get' -O -)
         if test $? -ne 0; then
+            log 'ERROR' "Couldn't contact API. Is it offline or blocked?"
             echo "API request failed! Assuming API is down and aborting!"
             abort
         fi

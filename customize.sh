@@ -1,7 +1,4 @@
-# shellcheck disable=2034
-# shellcheck disable=SC2148
-# shellcheck disable=1090
-# shellcheck disable=SC2086
+# shellcheck disable=2034,SC2148,1090,SC2086
 ##########################################################################################
 # Config Flags
 ##########################################################################################
@@ -9,10 +6,9 @@
 # Uncomment and change 'MINAPI' and 'MAXAPI' to the minimum and maximum android version for your mod
 # Uncomment DYNLIB if you want libs installed to vendor for oreo+ and system for anything older
 # Uncomment DEBUG if you want full debug logs (saved to /sdcard)
-#MINAPI=21
+MINAPI=26
 #MAXAPI=25
 #DYNLIB=true
-DEBUG=true
 
 ##########################################################################################
 # Replace list

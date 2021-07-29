@@ -130,5 +130,5 @@ extra_cleanup
 ui_print "⚠ Please make sure not to have any other font changing modules installed ⚠"
 ui_print "⚠ Please remove any such module, as it conflicts with this one ⚠"
 ui_print "ⓘ Once you reboot, run 'su -c manage_fonts' in TermUX (recommended) or similiar"
-ui_print "ⓘ Our website, donation information, and how to get early access and fast downloads is at:"
-ui_print "		androidacy.com"
+sleep 1
+am start -a android.intent.action.VIEW -d "https://www.androidacy.com/thanks-for-installing/?utm_source=FontManagerInstall&utm_medium=module%20install" >/dev/null

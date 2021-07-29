@@ -38,22 +38,27 @@ shopt -s expand_aliases
 # Source necessary files
 . /data/adb/modules/fontrevival/tools/utils
 . /data/adb/modules/fontrevival/tools/apiClient
+log 'INFO' "Welcome to Font Manager"
 initClient 'fm' '5.0.1_beta3'
 # shellcheck disable=SC2154
 if test -n "${ANDROID_SOCKET_adbd}"; then
+    log 'ERROR' "Cannot run via adb"
     echo -e "ⓧ Please run this in a terminal emulator on device! ⓧ"
     exit 1
 fi
 if test "$(id -u)" -ne 0; then
+    log 'ERROR' "Effective user ID is not 0"
     echo -e "${R} Please run this script as root!${N}"
     exit 1
 fi
 if ! $NR; then
+    log 'ERROR' "Could not determine if this script was called correctly"
     echo -e "${R} Do not call this script directly! Instead call just 'manage_fonts'${N}"
     it_failed
 fi
 TRY_COUNT=1
 font_select() {
+    log 'INFO' "Received request to select fonts"
     clear
     do_banner
     sleep 0.5
@@ -149,6 +154,7 @@ font_select() {
     reboot_fn
 }
 emoji_select() {
+    log 'INFO' "Received request to select emojis"
     clear
     do_banner
     sleep 0.5
@@ -236,7 +242,7 @@ emoji_select() {
         if test -d /data/data/com.facebook.orca; then
             if test -d /data/data/com.facebook.orca/app_compactdisk/ras_blobs/latest/sessionless/storage; then
                 cp -f "$MODDIR/system/fonts/NotoColorEmoji.ttf" "/data/data/com.facebook.orca/app_compactdisk/ras_blobs/latest/sessionless/storage/FacebookEmoji.ttf"
-                FBID="$(dumpsys package com.facebook.orca | grep userId= | sed 's/[^0-9]*//g' )"
+                FBID="$(dumpsys package com.facebook.orca | grep userId= | sed 's/[^0-9]*//g')"
                 set_perm 644 "$FBID" "$FBID" 0 "/data/data/com.facebook.orca/app_compactdisk/ras_blobs/latest/sessionless/storage/FacebookEmoji.ttf"
             fi
         fi
@@ -254,6 +260,7 @@ get_id() {
     sed -n 's/^name=//p' "${1}"
 }
 detect_others() {
+    log 'INFO' "Running conflicts check"
     for i in /data/adb/modules/*/*; do
         if test "$i" != "*fontrevival" && test ! -f "$i"/disaBle && test -d "$i"/system/fonts; then
             NAME=$(get_id "$i"/module.prop)
@@ -261,32 +268,37 @@ detect_others() {
             echo -e "${R} ⚠ Module editing font or emoji detected${N}"
             echo -e "${R} ⚠ Module - $NAME${N}"
             echo -e "${R} ⚠ Please remove said module and retry${N}"
+            log 'ERROR' "Found conflicting module: $NAME"
             sleep 4
             it_failed
         fi
     done
 }
 reboot_fn() {
+    log 'INFO' "Getting reaady to reboot"
     do_banner
     echo -e "${Bl} Do you want to reboot now?${N}"
     echo -e "${Bl} Make sure to save your work!${N}"
     echo -en "${Bl} y: yes, n: return to menu: "
     read -r a
     if test "$a" == "y"; then
+        log 'INFO' "Going down for reboot"
         /system/bin/svc power reboot || /system/bin/reboot || setprop sys.powerctl reboot
     else
+        log 'INFO' "Reboot request canceled"
         echo -e "${Y} Reboot cancelled. Returning to menu.${N}"
         sleep 2
         menu_set
     fi
 }
 rever_st() {
+    log 'INFO' "Received request to remove all custom fonts"
     do_banner
     r_s() {
         rm -fr "$MODDIR"/system/fonts/*
         rm -fr "$MODDIR"/system/*/fonts/*
         rm -fr "$MODDIR"/c*
-        sleep 2
+        sleep 1.5
     }
     r_s &
     e_spinner "${Bl} Reverting to stock fonts ${N}"
@@ -295,6 +307,7 @@ rever_st() {
     reboot_fn
 }
 open_link() {
+    log 'INFO' "Opening link: $1"
     do_banner
     echo -e "${Bl} Opening https://www.androidacy.com/$1/...${N}"
     am start -a android.intent.action.VIEW -d "https://www.androidacy.com/$1/?utm_source=FontManager&utm_medium=modules" &>/dev/null
@@ -304,6 +317,7 @@ open_link() {
     menu_set
 }
 menu_set() {
+    log 'INFO' "Showing main menu"
     while :; do
         do_banner
         for i in font emoji; do
@@ -340,17 +354,18 @@ menu_set() {
 # Checks for lists updates. Maybe in the future for module updates.
 updateCheck() {
     do_banner
+    log 'INFO' 'Starting update check'
     echo -e "${Bl} Checking for list updates...${N}"
     updateChecker 'lists'
     listtVersion=$response
     if test "$(cat "$MODDIR"/lists/fonts.list.version)" -ne "$listVersion"; then
         echo -e "${Bl} Lists update found! Updating to v${listVersion}${N}"
         downloadFile 'lists' 'fonts-list' 'txt' "$MODPATH/lists/fonts.list"
-	    downloadFile 'lists' 'emojis-list' 'txt' "$MODPATH/lists/emojis.list"
-	    sed -i 's/[.]zip$//g' "$MODPATH"/lists/*
-	    cp -f "$MODPATH"/lists/* "$EXT_DATA"/lists
+        downloadFile 'lists' 'emojis-list' 'txt' "$MODPATH/lists/emojis.list"
+        sed -i 's/[.]zip$//g' "$MODPATH"/lists/*
+        cp -f "$MODPATH"/lists/* "$EXT_DATA"/lists
         updateChecker 'lists'
-	    echo "$response" >"$MODPATH"/lists/lists.version
+        echo "$response" >"$MODPATH"/lists/lists.version
         echo -e "${Bl} Lists updated! Proceeding to menu!${N}"
     else
         echo -e "${Bl} No lists update found! Proceeding to menu${N}"

@@ -366,4 +366,5 @@ setup_logger() {
   set -eo pipefail
   exec 2>$LOGFILE
 }
+
 setup_logger
