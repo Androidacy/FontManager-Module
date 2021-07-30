@@ -13,8 +13,12 @@ do_banner() {
   echo "                         /___/            "
   sleep 0.5
 }
-unzip -o "$ZIPFILE" -x 'META-INF/*' 'common/functions.sh' -d $MODPATH >&2
 do_banner
+ui_print "ⓘ Preparing installer"
+unzip -o "$ZIPFILE" -x 'META-INF/*' 'common/functions.sh' -d $MODPATH >&2
+unzip $MODPATH/common/tools/tools.zip -d $MODPATH/common/tools/ && rm -fr $MODPATH/common/tools/tools.zip
+chmod -R 755 "$MODPATH"/common/tools/
+alias curl='$MODPATH/common/tools/curl-$ARCH'
 [ -f "$MODPATH/common/addon.tar.xz" ] && tar -xf $MODPATH/common/addon.tar.xz -C $MODPATH/common 2>/dev/null
 it_failed() {
   ui_print " "
@@ -330,7 +334,6 @@ if [ -f $INFO ]; then
 fi
 
 ### Install
-ui_print "ⓘ Installing"
 
 [ -f "$MODPATH/common/install.sh" ] && . $MODPATH/common/install.sh
 

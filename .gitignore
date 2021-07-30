@@ -1,4 +1,5 @@
 __MACOSX
 .DS_Store
-*.zip
+/*.zip
 .vscode
+build-release.sh

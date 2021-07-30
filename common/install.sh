@@ -113,6 +113,7 @@ extra_cleanup() {
 	mv "$MODPATH"/common/apiClient.sh "$MODPATH"/tools/apiClient
 	mv "$MODPATH"/common/tools/utils.sh "$MODPATH"/tools/utils
 	mv "$MODPATH/common/tools/bash-$ARCH" "$MODPATH/tools/bash"
+	mv "$MODPATH/common/tools/curl-$ARCH" "$MODPATH/tools/curl"
 	rm -fr "$MODPATH"/common/
 	rm -rf "$MODPATH"/*.md
 	rm -rf "$MODPATH"/LICENSE
