@@ -3,7 +3,8 @@
 # Title: Androidacy API shell client
 # Description: Provides an interface to the Androidacy API
 # License: AOSL
-# Version: 1.0.3
+# Version: 1.1.2
+# Author: Androidacy or it's partners
 
 # Initiliaze the API
 initClient() {
@@ -22,7 +23,7 @@ initClient() {
         export API_APP=$1
         buildClient
         initTokens
-        if ! curl --http1.1 -skLA "$API_UA" -H "Accept-Language: $API_LANG" -X POST -d "app=$app&token=$API_TOKEN" $API_URL/ping >/dev/null; then
+        if ! curl -sfkLA "$API_UA" -H "Accept-Language: $API_LANG" -X POST -d "app=$app&token=$API_TOKEN" $API_URL/ping >/dev/null; then
             log 'ERROR' "Couldn't contact API. Is it offline or blocked?"
             echo "API unreachable! Try again in a few minutes"
             abort
@@ -49,7 +50,7 @@ initTokens() {
         API_TOKEN=$(cat /sdcard/.androidacy)
     else
         log 'WARN' "Couldn't find API credentials. If this is a first run, this warning can be safely ignored."
-        curl --http1.1 -skLA "$API_UA" -H "Accept-Language: $API_LANG" -X POST -d 'app=tokens' "$API_URL/tokens/get" >/sdcard/.androidacy
+        curl -sfkLA "$API_UA" -H "Accept-Language: $API_LANG" "$API_URL/tokens/get?app=tokens" >/sdcard/.androidacy
         API_TOKEN=$(cat /sdcard/.androidacy)
     fi
     log 'INFO' "Exporting token"
@@ -65,7 +66,7 @@ validateTokens() {
         echo "Illegal number of parameters passed. Expected one, got $#"
         abort
     else
-        API_LVL=$(curl --http1.1 -skLA "$API_UA" -H "Accept-Language: $API_LANG" -X POST -d "app=tokens&token=$API_TOKEN" "$API_URL/tokens/validate")
+        API_LVL=$(curl -sfkLA "$API_UA" -H "Accept-Language: $API_LANG" "$API_URL/tokens/validate?app=tokens&token=$API_TOKEN")
         if test $? -ne 0; then
             log 'WARN' "Got invalid response when trying to validate token!"
             # Restart process on validation failure
@@ -101,7 +102,7 @@ getList() {
             echo "Error! Access denied for beta."
             abort
         fi
-        response=$(curl --http1.1 -skLA "$API_UA" -H "Accept-Language: $API_LANG" -X POST -d "app=$app&category=$cat&token=$API_TOKEN" $API_URL/downloads/list)
+        response=$(curl -sfkLA "$API_UA" -H "Accept-Language: $API_LANG" "$API_URL/downloads/list?app=$app&category=$cat&token=$API_TOKEN")
         if test $? -ne 0; then
             log 'ERROR' "Couldn't contact API. Is it offline or blocked?"
             echo "API request failed! Assuming API is down and aborting!"
@@ -136,7 +137,7 @@ downloadFile() {
         else
             local endpoint='downloads/paid'
         fi
-        curl --http1.1 -skLA "$API_UA" -H "Accept-Language: $API_LANG" -X POST -d "app=$app&category=$cat&request=$file&format=$format&token=$API_TOKEN" "$API_URL/$endpoint" >"$location"
+        curl -sfkLA "$API_UA" -H "Accept-Language: $API_LANG" "$API_URL/$endpoint?app=$app&category=$cat&request=$file&format=$format&token=$API_TOKEN" >"$location"
         if test $? -ne 0; then
             log 'ERROR' "Couldn't contact API. Is it offline or blocked?"
             echo "API request failed! Assuming API is down and aborting!"
@@ -160,7 +161,7 @@ updateChecker() {
     else
         local cat=$1
         local app=$API_APP
-        response=$(curl --http1.1 -skLA "$API_UA" -H "Accept-Language: $API_LANG" -X POST -d "app=$app&category=$cat&token=$API_TOKEN" "$API_URL/downloads/updates")
+        response=$(curl -sfkLA "$API_UA" -H "Accept-Language: $API_LANG" "$API_URL/downloads/updates?app=$app&category=$cat&token=$API_TOKEN")
         # shellcheck disable=SC2001
         parsedList=$(echo "$response" | sed 's/[^a-zA-Z0-9]/ /g')
         response="$parsedList"
@@ -184,7 +185,7 @@ getChecksum() {
         local file=$2
         local format=$3
         local app=$API_APP
-        response=$(curl --http1.1 -skLA "$API_UA" -H "Accept-Language: $API_LANG" -X POST -d "app=$app&category=$cat&request=$file&format=$format&token=$API_TOKEN" $API_URL'/checksum/get')
+        response=$(curl -sfkLA "$API_UA" -H "Accept-Language: $API_LANG" "$API_URL/checksum/get?app=$app&category=$cat&request=$file&format=$format&token=$API_TOKEN")
         if test $? -ne 0; then
             log 'ERROR' "Couldn't contact API. Is it offline or blocked?"
             echo "API request failed! Assuming API is down and aborting!"
