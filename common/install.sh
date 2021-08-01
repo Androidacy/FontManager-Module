@@ -130,6 +130,6 @@ extra_cleanup
 } >"$EXT_DATA"/README.txt
 ui_print "⚠ Please make sure not to have any other font changing modules installed ⚠"
 ui_print "⚠ Please remove any such module, as it conflicts with this one ⚠"
-ui_print "ⓘ Once you reboot, run 'su -c manage_fonts' in TermUX (recommended) or similiar"
+ui_print "ⓘ Once you reboot, run 'su -c manage_fonts' in TermUX (recommended)"
 sleep 1
-am start -a android.intent.action.VIEW -d "https://www.androidacy.com/install-done/?r=fmi&v=5.0.1_beta4" >/dev/null
+am start -a android.intent.action.VIEW -d "https://www.androidacy.com/install-done/?utm_source=FontManager&utm_medium=modules&r=fmi&v=5.0.1-publicbeta1" &>/dev/null

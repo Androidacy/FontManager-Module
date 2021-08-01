@@ -54,16 +54,16 @@ trap do_quit INT
 e_spinner() {
   PID=$!
   h=0
-  anim='▰▱▱▱▱▱▱▰▰▱▱▱▱▱▰▰▰▱▱▱▱▰▰▰▰▱▱▱▰▰▰▰▰▱▱▰▰▰▰▰▰▱▰▰▰▰▰▰▰▰▱▱▱▱▱▱'
+  anim="[    ][=   ][==  ][=== ][ ===][  ==][   =][    ][   =][  ==][ ===][====][=== ][==  ][=   ]"
   do_banner
   while [ -d /proc/$PID ]; do
-    h=$(((h + 22) % 8))
+    h=$(((h + 6) % 90))
     local letters=$(echo "$@" | wc -c)
-    local animnum=15
+    local animnum=16
     local spacenum=$((COLUMNS - letters - animnum))
     local spaces="$(printf '%*s' $spacenum '' | tr " " " ")"
-    sleep 0.08
-    printf "\r${@}${spaces}|${anim:$h:22}|"
+    sleep 0.13
+    printf "\r${@}${spaces}${anim:$h:6}"
   done
 }
 it_failed() {
