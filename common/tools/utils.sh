@@ -20,8 +20,7 @@ BGBL='\e[1;30;100m'  # Background W Text Bl
 N='\e[0m'            # How to use (example): echo "${C}example${N}"
 BLINK='\e[100;30;5m' # Blinking text
 loadBar=' '          # Load UI
-#COLUMNS="$(stty size | cut -d" " -f2)"
-div="${Bl}$(printf '%*s' $COLUMNS '' | tr " " "=")${N}"
+div="${Bl} $(printf '%*s' $(($COLUMNS - 2)) '' | tr " " "=") ${N}"
 spacing="$(printf '%*s' $(((COLUMNS - 49) * 50 / 100)) '' | tr " " " ")"
 # Print module banner
 do_banner() {
