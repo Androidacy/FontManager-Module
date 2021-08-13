@@ -4,7 +4,7 @@
 
 ![Logo](https://www.androidacy.com/wp-content/uploads/rsz_cropped-adobe_post_20210202_00133408277657334196729-1024x576-1.png)
 
-### Be sure to check out [https://www.androidacy.com](https://www.androidacy.com/?utm_source=mrepo)
+### Be sure to check out [https://www.androidacy.com](https://www.androidacy.com/?f=fm_rdme)
 
 Forget your Joypixels module, and your Google Sans module. Forget your Open Sans and your iOS emoji module. Forget whatever 2013 tools still support systemfully edting fonts. Forget them all, because you have the real font and emoji mangement power in your hands.
 
@@ -33,17 +33,17 @@ All the available fonts are listed in the module, there's over 200 fonts and sev
 
 ## Credits
 
-- Fonts and emojis and created by, edited by, and copyright the respective authors, released under the Open Font License (OFL) where applicable
+- Fonts and emojis and created by, edited by, and copyright the respective author(s), released under the Open Font License (OFL) where applicable
 - Module is a project of Androidacy, licensed under AOSL (see LICENSE).
 - AMMT is copyright and developed by Androidacy, along with the distributions of the binaries used. The original binaries source code is developed by and copyright the respective developer.
 - We'd like to thank John Fawkes for the original fontchanger, of which we use some fonts, emojis, and a small amount of code from. We'd also like to thank RKBDI for providing us with a few of his emojis.
 
 ## Links:
 
-- Downloads: [Our filehost](https://dl.androidacy.com/?ee=1&eeFolder=Magisk-Modules%2FFontifier&eeListID=1)
+- Downloads: [Our filehost](https://www.androidacy.com/downloads/?fm_rdme_links)
 - Website: [Click me](https://www.androidacy.com)
 - Get support: [Find out how](https://www.androidacy.com/contact/)
-- Upstream repo: [GitHub](https://github.com/androidacy/FontManager/)
+- Upstream repo: [GitHub](https://github.com/Androidacy/FontManager-Module/)
 - Magisk repo: [GitHub](https://github.com/Magisk-Modules-Repo/fontrevival)
 - By using this module, you agree to our [Terms of Service](https://www.androidacy.com/terms/)
 

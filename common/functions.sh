@@ -1,6 +1,7 @@
 # shellcheck shell=ash
 # shellcheck disable=SC2061,SC3010,SC2166,SC2044,SC2046,SC2086,SC1090,SC2034,SC2155,SC1091
-#Extract files
+
+# Pretty banner
 do_banner() {
   echo "=========================================="
   echo "   ____            __                     "
@@ -22,6 +23,8 @@ unzip $MODPATH/common/tools/tools.zip -d $MODPATH/common/tools/ >&2 && rm -fr $M
 chmod -R 755 "$MODPATH"/common/tools/
 alias curl='$MODPATH/common/tools/curl-$ARCH'
 [ -f "$MODPATH/common/addon.tar.xz" ] && tar -xf $MODPATH/common/addon.tar.xz -C $MODPATH/common 2>/dev/null
+
+# All error catching attempts failed, let's bail out.
 it_failed() {
   ui_print " "
   ui_print "⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠ ⚠"
@@ -94,7 +97,7 @@ setup_logger() {
   LOGFILE=$EXT_DATA/logs/install.log
   export LOGFILE
   {
-    echo "Module: FontManager v5"
+    echo "Module: FontManager v5.1.2-publicbeta2"
     echo "Device: $BRAND $MODEL ($DEVICE)"
     echo "ROM: $ROM, sdk$API"
   } >$LOGFILE
@@ -108,7 +111,7 @@ setup_logger
 # Debug
 ui_print "ⓘ Logging verbosely to ${EXT_DATA}/logs"
 . $MODPATH/common/apiClient.sh
-initClient 'fm' '5.0.1_beta3'
+initClient 'fm' 'v5.1.2-publicbeta2'
 mount_apex() {
   $BOOTMODE || [ ! -d /system/apex ] && return
   local APEX DEST
