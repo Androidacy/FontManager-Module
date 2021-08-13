@@ -79,6 +79,8 @@ validateTokens() {
     if test "$API_LVL" -lt 2; then
         echo '- Looks like your using a free or guest token'
         echo '- For info on faster downloads, see https://www.androidacy.com/donate/'
+    else
+        export API_URL='https://api2.androidacy.com'
     fi
 }
 
