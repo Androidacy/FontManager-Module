@@ -25,7 +25,7 @@ To use, all you need to do is run `su -c manage_fonts` in a terminal such as Ter
 - Select and apply large selection of fonts and emojis
 - Dynamically apply necessary changes for compatibility
 - Revert all font and emoji changes on demand
-- Update the lists of fonts and emojis on-demand
+- Update the lists of fonts and emojis automatically.
 - Reboot device on-demand to apply changes
 - **Custom font patching and offline font install currently are not supported**
 

@@ -97,7 +97,7 @@ setup_logger() {
   LOGFILE=$EXT_DATA/logs/install.log
   export LOGFILE
   {
-    echo "Module: FontManager v5.1.2-publicbeta2"
+    echo "Module: FontManager v5.1.3"
     echo "Device: $BRAND $MODEL ($DEVICE)"
     echo "ROM: $ROM, sdk$API"
   } >$LOGFILE
