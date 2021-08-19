@@ -132,4 +132,4 @@ ui_print "⚠ Please make sure not to have any other font changing modules insta
 ui_print "⚠ Please remove any such module, as it conflicts with this one ⚠"
 ui_print "ⓘ Once you reboot, run 'su -c manage_fonts' in TermUX (recommended)"
 sleep 1
-am start -a android.intent.action.VIEW -d "https://www.androidacy.com/install-done/?f=fontmanagert&r=fmi&v=5.1.3" &>/dev/null
+am start -a android.intent.action.VIEW -d "https://www.androidacy.com/install-done/?f=fontmanagert&r=fmi&v=5.1.4" &>/dev/null

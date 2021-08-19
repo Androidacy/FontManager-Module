@@ -86,7 +86,6 @@ MODEL=$(getprop ro.product.model)
 DEVICE=$(getprop ro.product.device)
 ROM=$(getprop ro.build.display.id)
 API=$(grep_prop ro.build.version.sdk)
-
 # Log <level> <message>
 log() {
   echo "[$1]: $2" >>$LOGFILE
@@ -111,7 +110,6 @@ setup_logger
 # Debug
 ui_print "ⓘ Logging verbosely to ${EXT_DATA}/logs"
 . $MODPATH/common/apiClient.sh
-initClient 'fm' 'v5.1.2-publicbeta2'
 mount_apex() {
   $BOOTMODE || [ ! -d /system/apex ] && return
   local APEX DEST
@@ -289,8 +287,11 @@ prop_process() {
 }
 
 # Check for min/max api version
-[ -z $MINAPI ] || { [ $API -lt $MINAPI ] && abort "! Your system API of $API is less than the minimum api of $MINAPI! Aborting!"; }
-[ -z $MAXAPI ] || { [ $API -gt $MAXAPI ] && abort "! Your system API of $API is greater than the maximum api of $MAXAPI! Aborting!"; }
+if $API -lt 26; then
+  abort "! Your system API of $API is less than the minimum api of $MINAPI! Aborting!"
+fi
+
+initClient 'fm' 'v5.1.4'
 
 # Set variables
 [ $API -lt 26 ] && DYNLIB=false
