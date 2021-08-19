@@ -39,7 +39,7 @@ shopt -s expand_aliases
 . /data/adb/modules/fontrevival/tools/utils
 . /data/adb/modules/fontrevival/tools/apiClient
 log 'INFO' "Welcome to Font Manager"
-initClient 'fm' '5.1.2-publicbeta1'
+initClient 'fm' '5.1.4'
 # shellcheck disable=SC2154
 if test -n "${ANDROID_SOCKET_adbd}"; then
     log 'ERROR' "Cannot run via adb"
