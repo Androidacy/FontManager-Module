@@ -288,7 +288,7 @@ prop_process() {
 
 # Check for min/max api version
 if $API -lt 26; then
-  abort "! Your system API of $API is less than the minimum api of $MINAPI! Aborting!"
+  abort "! Your system API of $API is less than the minimum api of 26 (Oreo)! Aborting!"
 fi
 
 initClient 'fm' 'v5.1.4'

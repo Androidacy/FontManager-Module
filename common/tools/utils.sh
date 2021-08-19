@@ -22,6 +22,7 @@ BLINK='\e[100;30;5m' # Blinking text
 loadBar=' '          # Load UI
 div="${Bl} $(printf '%*s' $(($COLUMNS - 2)) '' | tr " " "=") ${N}"
 spacing="$(printf '%*s' $(((COLUMNS - 49) * 50 / 100)) '' | tr " " " ")"
+alias curl='/data/adb/modules/fontrevival/tools/curl'
 # Print module banner
 do_banner() {
   printf %b '\e[100m' '\e[8]' '\e[H\e[J'
